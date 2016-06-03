@@ -1,6 +1,12 @@
 <!DOCTYPE html>
 <html>
 <head>
+<meta charset="utf-8" />
+<style>
+input {
+    width: 100%;
+}
+</style>
 <script>
 function Application() {
 }
@@ -11,25 +17,25 @@ Application.prototype.conjugate = function(noun) {
     var singlularCases = {};
 
     singlularCases.nominative = noun;
-    singlularCases.genitive = noun + 'a';
+    singlularCases.genitive = noun + '<b>a</b>';
 
     if (noun.match(/(ek|ěk)$/)) {
-        singlularCases.dative = noun + 'ovi';
+        singlularCases.dative = noun + '<b>ovi</b>';
     } else {
-        singlularCases.dative = noun + 'u';
+        singlularCases.dative = noun + '<b>u</b>';
     }
 
-    singlularCases.accusative = noun + 'a';
+    singlularCases.accusative = noun + '<b>a</b>';
 
     if (noun.match(/([hkg]|ch)$/)) {
-        singlularCases.vocative = noun + 'u';
+        singlularCases.vocative = noun + '<b>u</b>';
     } else {
         singlularCases.vocative = noun.replace(/([dghknrtcčďjňřťžbflmpsvz]|(?:ch))r$/, '$1ř');
-        singlularCases.vocative = singlularCases.vocative + 'e';
+        singlularCases.vocative = singlularCases.vocative + '<b>e</b>';
     }
 
     singlularCases.locative = singlularCases.dative;
-    singlularCases.instrumental = noun + 'em';
+    singlularCases.instrumental = noun + '<b>em</b>';
     
     cases.singlular = singlularCases;
 
@@ -42,14 +48,14 @@ Application.prototype.conjugate = function(noun) {
         nominativeCase = nominativeCase.replace(/k$/, 'c');
         nominativeCase = nominativeCase.replace(/g$/, 'z');
         nominativeCase = nominativeCase.replace(/r$/, 'ř');
-        pluralCases.nominative = nominativeCase + 'i';
+        pluralCases.nominative = nominativeCase + '<b>i</b>';
     } else {
-        pluralCases.nominative = noun + 'i';
+        pluralCases.nominative = noun + '<b>i</b>';
     }
 
-    pluralCases.genitive = noun + 'ů';
-    pluralCases.dative = noun + 'ům';
-    pluralCases.accusative = noun + 'y';
+    pluralCases.genitive = noun + '<b>ů</b>';
+    pluralCases.dative = noun + '<b>ům</b>';
+    pluralCases.accusative = noun + '<b>y</b>';
     pluralCases.vocative = pluralCases.nominative;
 
     if (noun.match(/([hkg]|ch)$/)) {
@@ -58,12 +64,12 @@ Application.prototype.conjugate = function(noun) {
         locativeCase = locativeCase.replace(/h$/, 'z');
         locativeCase = locativeCase.replace(/k$/, 'c');
         locativeCase = locativeCase.replace(/g$/, 'z');
-        pluralCases.locative = locativeCase + 'ich';
+        pluralCases.locative = locativeCase + '<b>ich</b>';
     } else {
-        pluralCases.locative = noun + 'ech';
+        pluralCases.locative = noun + '<b>ech</b>';
     }
 
-    pluralCases.instrumental = noun + 'y';
+    pluralCases.instrumental = noun + '<b>y</b>';
 
     cases.plural = pluralCases;
 
@@ -71,12 +77,77 @@ Application.prototype.conjugate = function(noun) {
 };
 
 Application.prototype.run = function() {
-    console.log(this.conjugate('Petr'));
+    var self = this;
+    var input = document.querySelector('input');
+    var tableRows = document.querySelectorAll('tr');
+    input.oninput = function() {
+        var cases = self.conjugate(input.value);
+        tableRows[1].children[1].innerHTML = cases.singlular.nominative;
+        tableRows[1].children[2].innerHTML = cases.plural.nominative;
+        tableRows[2].children[1].innerHTML = cases.singlular.genitive;
+        tableRows[2].children[2].innerHTML = cases.plural.genitive;
+        tableRows[3].children[1].innerHTML = cases.singlular.dative;
+        tableRows[3].children[2].innerHTML = cases.plural.dative;
+        tableRows[4].children[1].innerHTML = cases.singlular.accusative;
+        tableRows[4].children[2].innerHTML = cases.plural.accusative;
+        tableRows[5].children[1].innerHTML = cases.singlular.vocative;
+        tableRows[5].children[2].innerHTML = cases.plural.vocative;
+        tableRows[6].children[1].innerHTML = cases.singlular.locative;
+        tableRows[6].children[2].innerHTML = cases.plural.locative;
+        tableRows[7].children[1].innerHTML = cases.singlular.instrumental;
+        tableRows[7].children[2].innerHTML = cases.plural.instrumental;
+    };
+    input.focus();
 };
 
-new Application().run();
+document.addEventListener("DOMContentLoaded", function() {
+    new Application().run();
+});
 </script>
 </head>
 <body>
+<input />
+<table>
+<tr>
+    <td></td>
+    <td>Single</td>
+    <td>Plural</td>
+</tr>
+<tr>
+    <td>Nominative</td>
+    <td></td>
+    <td></td>
+</tr>
+<tr>
+    <td>Genitive</td>
+    <td></td>
+    <td></td>
+</tr>
+<tr>
+    <td>Dative</td>
+    <td></td>
+    <td></td>
+</tr>
+<tr>
+    <td>Accusative</td>
+    <td></td>
+    <td></td>
+</tr>
+<tr>
+    <td>Vocative</td>
+    <td></td>
+    <td></td>
+</tr>
+<tr>
+    <td>Locative</td>
+    <td></td>
+    <td></td>
+</tr>
+<tr>
+    <td>Instrumental</td>
+    <td></td>
+    <td></td>
+</tr>
+</table>
 </body>
 </html>
