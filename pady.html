@@ -20,11 +20,19 @@ Application.prototype.conjugate = function(noun) {
     singlularCases.nominative = noun;
     singlularCases.genitive = noun + '<b>a</b>';
 
-    if (noun.match(/(ek|ěk)$/)) {
-        singlularCases.dative = noun + '<b>ovi</b>';
-    } else {
-        singlularCases.dative = noun + '<b>u</b>';
+    var nouns = noun.split(' ');
+    for (var index = 0; index < nouns.length - 1; index++) {
+        nouns[index] = nouns[index] + '<b>u</b>';
     }
+    var dativeCase = nouns[nouns.length - 1];
+    if (nouns.length > 1 || dativeCase.match(/(ek|ěk)$/) || dativeCase.match(/^[AÁBCČDĎEÉĚFGHÍJKLMNŇOÓPQRŘSŠTŤUŮVWXYÝZŽ]/)) {
+        dativeCase = dativeCase.replace(/(ek|ěk)$/, 'k');
+        dativeCase = dativeCase + '<b>ovi</b>';
+    } else {
+        dativeCase = dativeCase + '<b>u</b>';
+    }
+    nouns[nouns.length - 1] = dativeCase;
+    singlularCases.dative = nouns.join(' ');
 
     singlularCases.accusative = noun + '<b>a</b>';
 
@@ -42,7 +50,9 @@ Application.prototype.conjugate = function(noun) {
 
     var pluralCases = {};
 
-    if (noun.match(/([hkgr]|ch)$/)) {
+    if (['pan', 'vnuk', 'syn', ''].indexOf(noun) != -1 || noun.match(/^[AÁBCČDĎEÉĚFGHÍJKLMNŇOÓPQRŘSŠTŤUŮVWXYÝZŽ]/) || noun.match(/[qwx]/)) {
+        pluralCases.nominative = noun + '<b>ove</b>';
+    } else if (noun.match(/([hkgr]|ch)$/)) {
         var nominativeCase = noun;
         nominativeCase = nominativeCase.replace(/ch$/, 'š');
         nominativeCase = nominativeCase.replace(/h$/, 'z');
@@ -50,6 +60,8 @@ Application.prototype.conjugate = function(noun) {
         nominativeCase = nominativeCase.replace(/g$/, 'z');
         nominativeCase = nominativeCase.replace(/r$/, 'ř');
         pluralCases.nominative = nominativeCase + '<b>i</b>';
+    } else if (noun.match(/an$/)) {
+        pluralCases.nominative = noun + '<b>e</b>';
     } else {
         pluralCases.nominative = noun + '<b>i</b>';
     }
