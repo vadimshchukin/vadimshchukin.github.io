@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script>
+function Application() {
+}
+
+Application.prototype.conjugate = function(noun) {
+    var cases = {};
+
+    var singlularCases = {};
+
+    singlularCases.nominative = noun;
+    singlularCases.genitive = noun + 'a';
+
+    if (noun.match(/(ek|ěk)$/)) {
+        singlularCases.dative = noun + 'ovi';
+    } else {
+        singlularCases.dative = noun + 'u';
+    }
+
+    singlularCases.accusative = noun + 'a';
+
+    if (noun.match(/([hkg]|ch)$/)) {
+        singlularCases.vocative = noun + 'u';
+    } else {
+        singlularCases.vocative = noun.replace(/([dghknrtcčďjňřťžbflmpsvz]|(?:ch))r$/, '$1ř');
+        singlularCases.vocative = singlularCases.vocative + 'e';
+    }
+
+    singlularCases.locative = singlularCases.dative;
+    singlularCases.instrumental = noun + 'em';
+    
+    cases.singlular = singlularCases;
+
+    var pluralCases = {};
+
+    if (noun.match(/([hkgr]|ch)$/)) {
+        var nominativeCase = noun;
+        nominativeCase = nominativeCase.replace(/ch$/, 'š');
+        nominativeCase = nominativeCase.replace(/h$/, 'z');
+        nominativeCase = nominativeCase.replace(/k$/, 'c');
+        nominativeCase = nominativeCase.replace(/g$/, 'z');
+        nominativeCase = nominativeCase.replace(/r$/, 'ř');
+        pluralCases.nominative = nominativeCase + 'i';
+    } else {
+        pluralCases.nominative = noun + 'i';
+    }
+
+    pluralCases.genitive = noun + 'ů';
+    pluralCases.dative = noun + 'ům';
+    pluralCases.accusative = noun + 'y';
+    pluralCases.vocative = pluralCases.nominative;
+
+    if (noun.match(/([hkg]|ch)$/)) {
+        var locativeCase = noun;
+        locativeCase = locativeCase.replace(/ch$/, 'š');
+        locativeCase = locativeCase.replace(/h$/, 'z');
+        locativeCase = locativeCase.replace(/k$/, 'c');
+        locativeCase = locativeCase.replace(/g$/, 'z');
+        pluralCases.locative = locativeCase + 'ich';
+    } else {
+        pluralCases.locative = noun + 'ech';
+    }
+
+    pluralCases.instrumental = noun + 'y';
+
+    cases.plural = pluralCases;
+
+    return cases;
+};
+
+Application.prototype.run = function() {
+    console.log(this.conjugate('Petr'));
+};
+
+new Application().run();
+</script>
+</head>
+<body>
+</body>
+</html>
