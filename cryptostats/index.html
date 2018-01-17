@@ -29,6 +29,7 @@ body {
 }
 
 div.table {
+    margin: auto;
     width: fit-content;
     white-space: pre;
     font-family: VT220-mod;
@@ -81,7 +82,7 @@ $(document).ready(function() {
         minimumFractionDigits: 2
     });
 
-    $.get("https://api.coinmarketcap.com/v1/ticker/?limit=20", function(tickers) {
+    $.get("https://api.coinmarketcap.com/v1/ticker/?limit=25", function(tickers) {
         let tableBlock = document.createElement('div');
         tableBlock.className = 'table';
 
@@ -132,8 +133,7 @@ $(document).ready(function() {
 
 </head>
 
-<body style="">
-<pre id="view"></pre>
+<body>
 </body>
 
 </html>
