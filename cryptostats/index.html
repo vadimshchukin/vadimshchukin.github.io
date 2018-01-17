@@ -1,0 +1,139 @@
+<!doctype html>
+<html>
+<head>
+
+<meta charset="utf-8" />
+
+<title>Cryptostats</title>
+
+<link rel="shortcut icon" href="http://i.imgur.com/QBf6mh6.png" />
+
+<style type="text/css">
+@font-face {
+ font-family: "VT220-mod";
+ src: url("VT220-mod.ttf") format("truetype");
+}
+
+::selection {
+    color: black;
+    background: rgb(26,255,0);
+}
+::-moz-selection {
+    color: black;
+    background: rgb(26,255,0);
+}
+
+body {
+    margin: 0px;
+    background-color: black;
+}
+
+div.table {
+    width: fit-content;
+    white-space: pre;
+    font-family: VT220-mod;
+    font-size: 24pt;
+    color: rgb(26,255,0);
+}
+
+.highlight:hover {
+    background-color: rgb(49,117,42);
+}
+</style>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/sprintf/1.1.1/sprintf.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+<script type="text/javascript">
+function appendChildren(parent, children) {
+    for (let child of children) {
+        parent.appendChild(child);
+    }
+}
+
+function createBlockOfSpans(spans) {
+    let blockOfSpans = document.createElement('div');
+    appendChildren(blockOfSpans, spans);
+    return blockOfSpans;
+}
+
+function textToSpans(text, style) {
+    let spans = [];
+    for (let character of text) {
+        let span = document.createElement('span');
+        spans.push(span);
+        span.innerText = character;
+        if (style) {
+            span.style = style;
+        }
+    }
+    return spans;
+}
+
+function textToBlockOfSpans(text) {
+    return createBlockOfSpans(textToSpans(text));
+}
+
+$(document).ready(function() {
+    let formatter = new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD',
+        minimumFractionDigits: 2
+    });
+
+    $.get("https://api.coinmarketcap.com/v1/ticker/?limit=20", function(tickers) {
+        let tableBlock = document.createElement('div');
+        tableBlock.className = 'table';
+
+        tableBlock.appendChild(textToBlockOfSpans('+--------+------------+----------------------+---------+---------+---------+'));
+        tableBlock.appendChild(textToBlockOfSpans('| TICKER | PRICE      | CAPITALIZATION       | 1H%     | 24H%    | 7D%     |'));
+        tableBlock.appendChild(textToBlockOfSpans('+--------+------------+----------------------+---------+---------+---------+'));
+
+        for (let ticker of tickers) {
+            let spans = [];
+
+            Array.prototype.push.apply(spans, textToSpans(sprintf('| %-6s | %-10s | %-20s | ', ticker.symbol,
+                formatter.format(parseFloat(ticker.price_usd)),
+                formatter.format(parseFloat(ticker.market_cap_usd))
+            )));
+
+            let percentChangeHour = parseFloat(ticker.percent_change_1h);
+            Array.prototype.push.apply(spans, textToSpans(
+                    sprintf('%+-6g%%', percentChangeHour),
+                    percentChangeHour > 0 ? undefined : 'color: red;'
+                )
+            );
+            Array.prototype.push.apply(spans, textToSpans(' | '));
+            let percentChangeDay = parseFloat(ticker.percent_change_7d);
+            Array.prototype.push.apply(spans, textToSpans(
+                    sprintf('%+-6g%%', percentChangeDay),
+                    percentChangeDay > 0 ? undefined : 'color: red;'
+                )
+            );
+            Array.prototype.push.apply(spans, textToSpans(' | '));
+            let percentChangeWeek = parseFloat(ticker.percent_change_7d);
+            Array.prototype.push.apply(spans, textToSpans(
+                    sprintf('%+-6g%%', percentChangeWeek),
+                    percentChangeWeek > 0 ? undefined : 'color: red;'
+                )
+            );
+            Array.prototype.push.apply(spans, textToSpans(' |'));
+
+            let blockOfSpans = createBlockOfSpans(spans);
+            blockOfSpans.className = 'highlight';
+            tableBlock.appendChild(blockOfSpans);
+        }
+
+        tableBlock.appendChild(textToBlockOfSpans('+--------+------------+----------------------+---------+---------+---------+'));
+        document.body.appendChild(tableBlock);
+    });
+});
+</script>
+
+</head>
+
+<body style="">
+<pre id="view"></pre>
+</body>
+
+</html>
