@@ -35,6 +35,11 @@ div.table {
     font-family: VT220-mod;
     font-size: 24pt;
     color: rgb(26,255,0);
+    cursor: default;
+}
+
+.highlight {
+    cursor: text;
 }
 
 .highlight:hover {
@@ -46,15 +51,11 @@ div.table {
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 
 <script type="text/javascript">
-function appendChildren(parent, children) {
-    for (let child of children) {
-        parent.appendChild(child);
-    }
-}
-
 function createBlockOfSpans(spans) {
     let blockOfSpans = document.createElement('div');
-    appendChildren(blockOfSpans, spans);
+    for (let span of spans) {
+        blockOfSpans.appendChild(span);
+    }
     return blockOfSpans;
 }
 
@@ -76,48 +77,51 @@ function textToBlockOfSpans(text) {
 }
 
 $(document).ready(function() {
-    let formatter = new Intl.NumberFormat('en-US', {
+    let priceFormatter = new Intl.NumberFormat('en-US', {
         style: 'currency',
         currency: 'USD',
         minimumFractionDigits: 2
+    });
+    let capitalizationFormatter = new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
     });
 
     $.get("https://api.coinmarketcap.com/v1/ticker/?limit=25", function(tickers) {
         let tableBlock = document.createElement('div');
         tableBlock.className = 'table';
 
-        tableBlock.appendChild(textToBlockOfSpans('+--------+------------+----------------------+---------+---------+---------+'));
-        tableBlock.appendChild(textToBlockOfSpans('| TICKER | PRICE      | CAPITALIZATION       | 1H%     | 24H%    | 7D%     |'));
-        tableBlock.appendChild(textToBlockOfSpans('+--------+------------+----------------------+---------+---------+---------+'));
+        tableBlock.appendChild(textToBlockOfSpans('+--------+------------+-------------------+---------+---------+---------+'));
+        tableBlock.appendChild(textToBlockOfSpans('| TICKER | PRICE      | CAPITALIZATION    | 1H%     | 24H%    | 7D%     |'));
+        tableBlock.appendChild(textToBlockOfSpans('+--------+------------+-------------------+---------+---------+---------+'));
 
         for (let ticker of tickers) {
             let spans = [];
 
-            Array.prototype.push.apply(spans, textToSpans(sprintf('| %-6s | %-10s | %-20s | ', ticker.symbol,
-                formatter.format(parseFloat(ticker.price_usd)),
-                formatter.format(parseFloat(ticker.market_cap_usd))
+            Array.prototype.push.apply(spans, textToSpans(sprintf('| %-6s | %-10s | %-17s | ',
+                ticker.symbol,
+                priceFormatter.format(parseFloat(ticker.price_usd)),
+                capitalizationFormatter.format(parseFloat(ticker.market_cap_usd))
             )));
 
             let percentChangeHour = parseFloat(ticker.percent_change_1h);
-            Array.prototype.push.apply(spans, textToSpans(
-                    sprintf('%+-6g%%', percentChangeHour),
-                    percentChangeHour > 0 ? undefined : 'color: red;'
-                )
-            );
+            let color = percentChangeHour > 0 ? undefined : 'color: red;';
+            percentChangeHour = sprintf('%+-.2f%%', percentChangeHour);
+            Array.prototype.push.apply(spans, textToSpans(sprintf('%7s', percentChangeHour), color));
             Array.prototype.push.apply(spans, textToSpans(' | '));
+
             let percentChangeDay = parseFloat(ticker.percent_change_7d);
-            Array.prototype.push.apply(spans, textToSpans(
-                    sprintf('%+-6g%%', percentChangeDay),
-                    percentChangeDay > 0 ? undefined : 'color: red;'
-                )
-            );
+            color = percentChangeDay > 0 ? undefined : 'color: red;';
+            percentChangeDay = sprintf('%+-.2f%%', percentChangeDay);
+            Array.prototype.push.apply(spans, textToSpans(sprintf('%7s', percentChangeDay), color));
             Array.prototype.push.apply(spans, textToSpans(' | '));
+
             let percentChangeWeek = parseFloat(ticker.percent_change_7d);
-            Array.prototype.push.apply(spans, textToSpans(
-                    sprintf('%+-6g%%', percentChangeWeek),
-                    percentChangeWeek > 0 ? undefined : 'color: red;'
-                )
-            );
+            color = percentChangeWeek > 0 ? undefined : 'color: red;';
+            percentChangeWeek = sprintf('%+-.2f%%', percentChangeWeek);
+            Array.prototype.push.apply(spans, textToSpans(sprintf('%7s', percentChangeWeek), color));
             Array.prototype.push.apply(spans, textToSpans(' |'));
 
             let blockOfSpans = createBlockOfSpans(spans);
@@ -125,7 +129,26 @@ $(document).ready(function() {
             tableBlock.appendChild(blockOfSpans);
         }
 
-        tableBlock.appendChild(textToBlockOfSpans('+--------+------------+----------------------+---------+---------+---------+'));
+        tableBlock.appendChild(textToBlockOfSpans('+--------+------------+-------------------+---------+---------+---------+'));
+
+        let marketCapitalization = undefined;
+        $.ajax({
+            url: 'https://api.coinmarketcap.com/v1/global/',
+            async: false,
+            success: function (global_data) {
+                marketCapitalization = global_data.total_market_cap_usd;
+            }
+        });
+
+        let spans = [];
+        Array.prototype.push.apply(spans, textToSpans('+ TOTAL  +            +'));
+        Array.prototype.push.apply(spans, textToSpans(sprintf(' %-17s ', capitalizationFormatter.format(marketCapitalization))));
+        Array.prototype.push.apply(spans, textToSpans('+         +         +         +'));
+        let blockOfSpans = createBlockOfSpans(spans);
+        blockOfSpans.className = 'highlight';
+        tableBlock.appendChild(blockOfSpans);
+
+        tableBlock.appendChild(textToBlockOfSpans('+--------+------------+-------------------+---------+---------+---------+'));
         document.body.appendChild(tableBlock);
     });
 });
