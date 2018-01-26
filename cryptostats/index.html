@@ -141,9 +141,9 @@ $(document).ready(function() {
         });
 
         let spans = [];
-        Array.prototype.push.apply(spans, textToSpans('+ TOTAL  +            +'));
+        Array.prototype.push.apply(spans, textToSpans('| TOTAL  |            |'));
         Array.prototype.push.apply(spans, textToSpans(sprintf(' %-17s ', capitalizationFormatter.format(marketCapitalization))));
-        Array.prototype.push.apply(spans, textToSpans('+         +         +         +'));
+        Array.prototype.push.apply(spans, textToSpans('|         |         |         |'));
         let blockOfSpans = createBlockOfSpans(spans);
         blockOfSpans.className = 'highlight';
         tableBlock.appendChild(blockOfSpans);
