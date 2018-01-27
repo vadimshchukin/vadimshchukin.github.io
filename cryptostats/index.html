@@ -112,7 +112,7 @@ $(document).ready(function() {
             Array.prototype.push.apply(spans, textToSpans(sprintf('%7s', percentChangeHour), color));
             Array.prototype.push.apply(spans, textToSpans(' | '));
 
-            let percentChangeDay = parseFloat(ticker.percent_change_1d);
+            let percentChangeDay = parseFloat(ticker.percent_change_24h);
             color = percentChangeDay > 0 ? undefined : 'color: red;';
             percentChangeDay = sprintf('%+-.2f%%', percentChangeDay);
             Array.prototype.push.apply(spans, textToSpans(sprintf('%7s', percentChangeDay), color));
